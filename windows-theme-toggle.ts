@@ -1,4 +1,7 @@
 // Name: Toggle System Theme
+// Author: arkatsy
+// Description: Toggles the system theme between light and dark mode.
+// Keywords: windows, theme, dark, light, toggle
 
 import "@johnlindquist/kit";
 import * as _regedit from "regedit";
@@ -24,17 +27,16 @@ const REGEDIT_PATH = "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes
 
 const res = await regedit.list([REGEDIT_PATH]);
 const settingValues = res[REGEDIT_PATH].values;
-const props = ["AppsUseLightTheme", "SystemUsesLightTheme"];
 
 function themeValuesExist(values: any): values is ThemeSettingsValues {
-  return props.every((prop) => values[prop] !== undefined);
+  return ["AppsUseLightTheme", "SystemUsesLightTheme"].every((prop) => values[prop] !== undefined);
 }
 
 if (!themeValuesExist(settingValues)) {
   throw new Error("Theme values do not exist in registry");
 }
 
-// As a sensible default, the next theme is based on the AppsUseLightTheme. 
+// As a sensible default, the next theme is based only on the AppsUseLightTheme.
 // It's for the case where AppsUseLightTheme & SystemUsesLightTheme are not synced.
 const isDark = settingValues.AppsUseLightTheme.value === DARK_THEME_VALUE;
 
@@ -57,13 +59,13 @@ exec("taskkill /F /IM explorer.exe", (error) => {
     console.error(`Failed to kill explorer.exe: ${error.message}`);
     return;
   }
-  
+
   exec("start explorer.exe", (error) => {
     if (error) {
       console.error(`Failed to restart explorer.exe: ${error.message}`);
       return;
     }
-    
+
     console.log("explorer.exe restarted successfully");
   });
 });
