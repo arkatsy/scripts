@@ -1,4 +1,4 @@
-// Name: Open Recent VS Code Project v2
+// Name: Open Recent VS Code Project
 // GitHub: @benschlegel
 // Author: Ben Schlegel
 // Description: Open recent vscode project (with remote connection support)

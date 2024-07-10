@@ -8,42 +8,32 @@ import * as _regedit from "regedit";
 import { exec } from "child_process";
 
 const regedit = _regedit.promisified;
-
+const REGISTRY_PATH = "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
 const DARK_THEME_VALUE = 0;
 const LIGHT_THEME_VALUE = 1;
-type ThemeValues = 0 | 1;
 
 type SettingValue = {
   type: string;
-  value: ThemeValues;
+  value: typeof DARK_THEME_VALUE | typeof LIGHT_THEME_VALUE;
 };
 
-type ThemeSettingsValues = {
+type RegistryThemeKeys = {
   AppsUseLightTheme: SettingValue;
   SystemUsesLightTheme: SettingValue;
 };
 
-const REGEDIT_PATH = "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
+const res = await regedit.list([REGISTRY_PATH]);
+const settingValues = res[REGISTRY_PATH].values;
 
-const res = await regedit.list([REGEDIT_PATH]);
-const settingValues = res[REGEDIT_PATH].values;
-
-function themeValuesExist(values: any): values is ThemeSettingsValues {
-  return ["AppsUseLightTheme", "SystemUsesLightTheme"].every((prop) => values[prop] !== undefined);
+if (!("AppsUseLightTheme" in settingValues) || !("SystemUsesLightTheme" in settingValues)) {
+  throw new Error("AppsUseLightTheme or SystemUsesLightTheme not found in registry");
 }
 
-if (!themeValuesExist(settingValues)) {
-  console.error("AppsUseLightTheme or SystemUsesLightTheme not found in registry");
-  exit();
-}
-
-// In the case where AppsUseLightTheme & SystemUsesLightTheme are not synced,
-// the next value comes 
-const isDark = settingValues.AppsUseLightTheme.value === DARK_THEME_VALUE;
+const isDark = (settingValues as RegistryThemeKeys).AppsUseLightTheme.value === DARK_THEME_VALUE;
 const nextThemeValue = isDark ? LIGHT_THEME_VALUE : DARK_THEME_VALUE;
 
 await regedit.putValue({
-  [REGEDIT_PATH]: {
+  [REGISTRY_PATH]: {
     AppsUseLightTheme: {
       type: "REG_DWORD",
       value: nextThemeValue,
@@ -55,19 +45,15 @@ await regedit.putValue({
   },
 });
 
-// When SystemUsesLightTheme changes, some elements like the taskbar need to be restarted for the changes to take effect.
+// When SystemUsesLightTheme changes, some elements like the taskbar need to be restarted for the theme to apply properly.
 exec("taskkill /F /IM explorer.exe", (error) => {
   if (error) {
-    console.error(`Failed to kill explorer.exe: ${error.message}`);
-    return;
+    throw new Error(`Failed to kill explorer.exe: ${error.message}`);
   }
 
   exec("start explorer.exe", (error) => {
     if (error) {
-      console.error(`Failed to restart explorer.exe: ${error.message}`);
-      return;
+      throw new Error(`Failed to restart explorer.exe: ${error.message}`);
     }
-
-    console.log("explorer.exe restarted successfully");
   });
 });
