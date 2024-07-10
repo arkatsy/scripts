@@ -1,4 +1,4 @@
-# Personal ScriptKit scripts
+# My Script Kit scripts
 
 https://www.scriptkit.com/
 
