@@ -1,3 +1,5 @@
+// Exclude: true
+
 # My Script Kit scripts
 
 https://www.scriptkit.com/
