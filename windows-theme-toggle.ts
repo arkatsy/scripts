@@ -1,7 +1,6 @@
 // Name: Toggle System Theme
 // Author: arkatsy
 // Description: Toggles the system theme between light and dark mode.
-// Keywords: windows, theme, dark, light, toggle
 
 import "@johnlindquist/kit";
 import * as _regedit from "regedit";
