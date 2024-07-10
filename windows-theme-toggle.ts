@@ -11,7 +11,7 @@ const regedit = _regedit.promisified;
 
 const DARK_THEME_VALUE = 0;
 const LIGHT_THEME_VALUE = 1;
-type ThemeValues = typeof DARK_THEME_VALUE | typeof LIGHT_THEME_VALUE;
+type ThemeValues = 0 | 1;
 
 type SettingValue = {
   type: string;
@@ -33,22 +33,24 @@ function themeValuesExist(values: any): values is ThemeSettingsValues {
 }
 
 if (!themeValuesExist(settingValues)) {
-  throw new Error("Theme values do not exist in registry");
+  console.error("AppsUseLightTheme or SystemUsesLightTheme not found in registry");
+  exit();
 }
 
-// As a sensible default, the next theme is based only on the AppsUseLightTheme.
-// It's for the case where AppsUseLightTheme & SystemUsesLightTheme are not synced.
+// In the case where AppsUseLightTheme & SystemUsesLightTheme are not synced,
+// the next value comes 
 const isDark = settingValues.AppsUseLightTheme.value === DARK_THEME_VALUE;
+const nextThemeValue = isDark ? LIGHT_THEME_VALUE : DARK_THEME_VALUE;
 
 await regedit.putValue({
   [REGEDIT_PATH]: {
     AppsUseLightTheme: {
       type: "REG_DWORD",
-      value: isDark ? LIGHT_THEME_VALUE : DARK_THEME_VALUE,
+      value: nextThemeValue,
     },
     SystemUsesLightTheme: {
       type: "REG_DWORD",
-      value: isDark ? LIGHT_THEME_VALUE : DARK_THEME_VALUE,
+      value: nextThemeValue,
     },
   },
 });
