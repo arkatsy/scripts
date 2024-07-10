@@ -1,6 +1,6 @@
 // Exclude: true
 
-# My Script Kit scripts
+# Scripts collection for Script Kit
 
 https://www.scriptkit.com/
 
