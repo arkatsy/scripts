@@ -1,9 +1,5 @@
 // Name: Open Recent VS Code Project
-// GitHub: @benschlegel
-// Author: Ben Schlegel
 // Description: Open recent vscode project (with remote connection support)
-// Shortcode code
-// Shortcut: cmd shift o
 
 import "@johnlindquist/kit"
 import { Action } from "@johnlindquist/kit"
