@@ -14,3 +14,5 @@ const url = await arg('Select doc:',
     value: `https://developer.mozilla.org${url}`
   }))
 )
+
+open(url)
